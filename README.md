@@ -1,5 +1,5 @@
 # MasterThesis
-##[SCHEDULE]
+## [SCHEDULE]
 1) Literature analysis related to the topic of the work
 2) Selection of the database and its initial preparation
 2) Preprocessing of ECG signals, division into classes and epochs
@@ -10,7 +10,7 @@
 7) Performing model training
 8) Analysis of the results obtained
 9) Editing of the work
-##[LITERATURE]
+## [LITERATURE]
 Articles on ECG signal processing and artificial intelligence methods in the classification task.<br/>
 [1] Nemcova, A., Smisek, R., Opravilová, K., Vitek, M., Smital, L., & Maršánová, L. (2020). Brno University of Technology ECG Quality Database (BUT QDB) (version 1.0.0). PhysioNet. https://doi.org/10.13026/kah4-0w24.
 [] van der Bijl, K., Elgendi, M., & Menon, C. (2022). Automatic ECG quality assessment techniques: A systematic review. Diagnostics, 12(11), 2578. <br/>
