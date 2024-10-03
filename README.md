@@ -1,4 +1,4 @@
-# MasterThesis
+# ECG signal quality assessment using artificial intelligence models
 ## [SCHEDULE]
 1) Literature analysis related to the topic of the work
 2) Selection of the database and its initial preparation
