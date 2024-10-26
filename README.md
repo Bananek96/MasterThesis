@@ -21,3 +21,13 @@ Articles on ECG signal processing and artificial intelligence methods in the cla
 [6] Petmezas, G., Stefanopoulos, L., Kilintzis, V., Tzavelis, A., Rogers, J. A., Katsaggelos, A. K., & Maglaveras, N. (2022). State-of-the-art deep learning methods on electrocardiogram data: systematic review. JMIR medical informatics, 10(8), e38454.<br/>
 [7] Kuetche, F., Alexendre, N., Pascal, N. E., Colince, W., & Thierry, S. (2023). Signal quality indices evaluation for robust ECG signal quality assessment systems. Biomedical Physics & Engineering Express, 9(5), 055016.<br/>
 [8] Mondal, A., Manikandan, M. S., & Pachori, R. B. (2024). Fast CNN Based Electrocardiogram Signal Quality Assessment Using Fourier Magnitude Spectrum for Resource-Constrained ECG Diagnosis Devices. IEEE Sensors Letters.<br/>
+## ToolBox Instalation
+```bash
+[old_path] = which('rdsamp'); if (~isempty(old_path)) rmpath(old_path(1:end-8)); end
+wfdb_url = 'https://physionet.org/physiotools/matlab/wfdb-app-matlab/wfdb-app-toolbox-0-10-0.zip';
+[filestr, status] = urlwrite(wfdb_url, 'wfdb-app-toolbox-0-10-0.zip');
+unzip('wfdb-app-toolbox-0-10-0.zip');
+cd mcode
+addpath(pwd)
+savepath
+```
