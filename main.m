@@ -6,6 +6,7 @@
 FolderPath = './database';
 HowManyData = 1; % Liczba folderów do przetwarzania (0 = wszystkie)
 ModelPath = './decision_tree_model.mat'; % Ścieżka do zapisu/wczytania modelu
+MaxTrainingTime = 1000; % Maksymalny czas treningu w sekundach
 
 % Przetwarzanie danych
 disp("Rozpoczęcie przetwarzania danych");
@@ -13,9 +14,9 @@ processedData = data_processing(FolderPath, HowManyData);
 disp("Zakończono przetwarzanie danych");
 
 % Trenowanie modelu drzewa decyzyjnego
-disp("Rozpoczęcie treningu modelu drzewa decyzyjnego");
-trainedModel = train_decision_tree(ModelPath, processedData);
-disp("Zakończono trening modelu drzewa decyzyjnego");
+disp("Rozpoczęcie treningu modelu");
+trainedModel = train_decision_tree(ModelPath, processedData, MaxTrainingTime);
+disp("Zakończono trening modelu");
 
 % Ewaluacja modelu
 disp("Rozpoczęcie ewaluacji modelu");
