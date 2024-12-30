@@ -30,7 +30,7 @@ function waveletTransformedData = data_processing(FolderPath, HowManyData)
         
         % Wczytanie adnotacji jakości sygnału dla zakresu próbek
         anntr = [1, 2, 3, 4];  % Wybór annotatorów
-        fromSample = 1;     % Początkowa próbka
+        fromSample = 1;     % Poczatkowa próbka
         toSample = length(sig);  % Końcowa próbka (cały sygnał)
         ann = ann_reader(AnnotationFile, anntr, fromSample, toSample);
         
@@ -110,4 +110,4 @@ function waveletTransformedData = data_processing(FolderPath, HowManyData)
     end
     
     disp("Zakończono transformację falkową");
-end
+end 

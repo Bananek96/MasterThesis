@@ -6,7 +6,11 @@ function [X, Y] = prepare_data_for_cnn(processedData)
     % Przygotowanie danych
     for annotator = 1:size(processedData, 1)
         for qualityClass = 1:size(processedData, 2)
-            if ~isempty(processedData{annotator, qualityClass})
+            % Sprawdzanie czy dane nie są puste i mają pole "statistics"
+            if ~isempty(processedData{annotator, qualityClass}) && ...
+               isfield(processedData{annotator, qualityClass}, 'statistics') && ...
+               ~isempty(processedData{annotator, qualityClass}.statistics)
+                
                 stats = processedData{annotator, qualityClass}.statistics;
                 
                 % Tworzenie wektora cech
@@ -20,9 +24,6 @@ function [X, Y] = prepare_data_for_cnn(processedData)
                     stats.max, ...
                     stats.energy, ...
                     stats.entropy];
-                
-                % Debugging: wyświetl wymiar wektora cech
-                % Sdisp(['Liczba cech: ', num2str(length(features))]);
                 
                 % Dodanie wektora cech jako wiersz do macierzy X
                 X = [X; features];
