@@ -1,19 +1,15 @@
 function visualize_signal_classification(sig, tm, YPred)
+    % Wizualizacja całego sygnału z oznaczeniem klas
     figure;
-    plot(tm, sig, 'b', 'DisplayName', 'Sygnał EKG');
     hold on;
-
-    % Kolory dla każdej klasy
-    colors = {'r', 'g', 'm'};
+    colors = ['r', 'g', 'b']; % Kolory dla 3 klas
     for qualityClass = 1:3
-        indices = find(YPred == qualityClass);
-        scatter(tm(indices), sig(indices), '.', 'MarkerEdgeColor', colors{qualityClass}, ...
-            'DisplayName', ['Klasa ', num2str(qualityClass)]);
+        classIndices = find(YPred == qualityClass);
+        plot(tm(classIndices), sig(classIndices), 'Color', colors(qualityClass), 'LineWidth', 1.5);
     end
-
-    title('Klasyfikacja jakości sygnału');
-    xlabel('Czas [s]');
-    ylabel('Amplituda');
-    legend;
     hold off;
+    title('Przypisanie klas do sygnału');
+    xlabel('Czas (s)');
+    ylabel('Amplituda');
+    legend({'Klasa 1', 'Klasa 2', 'Klasa 3'});
 end

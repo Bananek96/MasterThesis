@@ -1,6 +1,6 @@
 function waveletTransformedData = data_processing(FolderPath, HowManyData)
     % Pobieranie listy folderów
-    folders = dir(FolderPath); 
+    folders = dir(FolderPath);
     folders = folders([folders.isdir]); % Filtruj tylko katalogi
     folders = folders(~ismember({folders.name}, {'.', '..', 'database'})); % Pomijanie '.' i '..'
     
@@ -11,10 +11,10 @@ function waveletTransformedData = data_processing(FolderPath, HowManyData)
     if HowManyData == 0
         numIterations = numel(folderNames); % Wszystkie foldery
     else
-        numIterations = min(HowManyData, numel(folderNames)); % Ilosc folderów
+        numIterations = min(HowManyData, numel(folderNames)); % Ilość folderów
     end
     
-    disp("Rozpoczęto selekcję danych");
+    disp("Rozpoczynanie selekcji danych...");
     
     % Iteracja i zapis nazw folderów do pliku AnnotationFile
     for i = 1:numIterations
@@ -28,9 +28,9 @@ function waveletTransformedData = data_processing(FolderPath, HowManyData)
         % Wczytanie sygnału EKG
         [sig, Fs, tm] = rdsamp(DataFile, 1);
         
-        % Wczytanie adnotacji jakości sygnału dla zakresu próbek
+        % Wczytanie adnotacji jakości sygnału
         anntr = [1, 2, 3, 4];  % Wybór annotatorów
-        fromSample = 1;     % Poczatkowa próbka
+        fromSample = 1;     % Początkowa próbka
         toSample = length(sig);  % Końcowa próbka (cały sygnał)
         ann = ann_reader(AnnotationFile, anntr, fromSample, toSample);
         
@@ -60,9 +60,9 @@ function waveletTransformedData = data_processing(FolderPath, HowManyData)
         end
     end
     
-    disp("Zakończono selekcje danych");
-      
-    disp("Rozpoczęto transformację falkową");
+    disp("Zakończono selekcję danych");
+    
+    disp("Rozpoczynanie transformacji falkowej...");
     
     % Przechowywanie wyników transformacji i cech statystycznych
     waveletTransformedData = cell(maxAnnotators, maxClasses);
@@ -93,7 +93,7 @@ function waveletTransformedData = data_processing(FolderPath, HowManyData)
                 stats.entropy = -sum(coefficients.^2 .* log(coefficients.^2 + eps));
                 
                 % Przechowywanie współczynników falkowych i cech
-                waveletTransformedData{annotator, qualityClass} = struct(...
+                waveletTransformedData{annotator, qualityClass} = struct(... 
                     'coefficients', c, ...   % Współczynniki falkowe
                     'lengths', l, ...        % Długości poziomów
                     'times', qualityTimes, ...  % Oryginalne czasy próbek
@@ -110,4 +110,4 @@ function waveletTransformedData = data_processing(FolderPath, HowManyData)
     end
     
     disp("Zakończono transformację falkową");
-end 
+end

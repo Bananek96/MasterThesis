@@ -8,15 +8,7 @@ function model = train_decision_tree(ModelPath, processedData, maxTrainingTime)
 
     if isfile(ModelPath)
         disp("Wczytywanie istniejącego modelu...");
-        loadedData = load(ModelPath, 'model', 'trainingTime');
-        
-        % Sprawdzenie, czy 'trainingTime' istnieje w załadowanych danych
-        if isfield(loadedData, 'trainingTime')
-            totalTrainingTime = loadedData.trainingTime;
-        else
-            disp("Ostrzeżenie: Zmienna 'trainingTime' nie istnieje w pliku modelu. Ustawiam 0.");
-        end
-        
+        loadedData = load(ModelPath, 'model');
         model = loadedData.model;
         disp("Dotrenowanie istniejącego modelu...");
     else
@@ -33,8 +25,10 @@ function model = train_decision_tree(ModelPath, processedData, maxTrainingTime)
     % Aktualizacja całkowitego czasu treningu
     totalTrainingTime = totalTrainingTime + toc(startTime);
     
-    % Zapis modelu i czasu treningu
-    trainingTime = totalTrainingTime; % Upewniamy się, że zmienna istnieje
-    save(ModelPath, 'model', 'trainingTime', '-v7.3');
-    disp(["Całkowity czas treningu: ", num2str(totalTrainingTime), " sekund"]);
+    % Zapis modelu i czasu treningu do osobnych plików
+    trainingTime = totalTrainingTime; % Czas treningu
+    save(ModelPath, 'model', '-v7.3');
+    save('training_time.mat', 'trainingTime', '-v7.3'); % Zapisz czas treningu do oddzielnego pliku
+    
+    disp(["Czas treningu: ", num2str(totalTrainingTime), " sekund"]);
 end
