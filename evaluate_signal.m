@@ -1,81 +1,63 @@
 function evaluate_signal(NewDataFile, AnnotationFile, ModelPath)
-    % Wczytanie sygnału
-    try
-        [sig, Fs, tm] = rdsamp(NewDataFile, 1);
-    catch
-        error("Nie można wczytać sygnału. Sprawdź ścieżkę: %s", NewDataFile);
-    end
+    % Wyciąganie nazwy folderu sygnału (np. 100001) z pełnej ścieżki
+    [folderPath, signalName, ~] = fileparts(NewDataFile);
+    disp(['Analizowanie sygnału: ', signalName]);
 
-    % Wczytanie modelu drzewa decyzyjnego
-    if ~isfile(ModelPath)
-        error("Model drzewa decyzyjnego nie istnieje. Sprawdź ścieżkę: %s", ModelPath);
-    end
-    load(ModelPath, 'decisionTreeModel');
-    
-    if ~exist('decisionTreeModel', 'var')
-        error("Model drzewa decyzyjnego nie został poprawnie załadowany.");
-    end
+    % Ustalanie częstotliwości próbkowania (1000 Hz)
+    Fs = 1000;
+
+    % Wczytanie danych EKG
+    [sig, Fs, tm] = rdsamp(NewDataFile, 1);  % Wczytanie surowych danych sygnałowych
 
     % Wczytanie adnotacji
-    anntr = [1, 2, 3, 4]; % Określenie rodzajów adnotacji do wczytania
+    anntr = [1, 2, 3, 4]; % Rodzaje adnotacji
     fromSample = 1; % Początkowy próbek
     toSample = length(sig); % Końcowy próbek (cały sygnał)
     ann = ann_reader(AnnotationFile, anntr, fromSample, toSample); % Wczytanie adnotacji
 
-    % Analiza jakości na podstawie adnotacji
-    annotationClasses = ann(1, :); % Zakładam, że adnotacje są w pierwszej kolumnie
+    % Podział na fragmenty 2-minutowe
+    segmentLength = 2 * 60 * Fs; % 2 minuty w próbkach (zakładając Fs = 1000 Hz)
+    numSegments = floor(length(sig) / segmentLength); % Liczba pełnych segmentów
 
-    % Obliczanie procentowego podziału sygnału na klasy wg adnotacji
-    uniqueClasses = unique(annotationClasses);
-    annotationDistribution = histcounts(annotationClasses, [uniqueClasses, max(uniqueClasses)+1]) / length(annotationClasses) * 100;
+    % Wczytanie modelu
+    load(ModelPath, 'randomForestModel');
 
-    % Wyświetlanie wyników z adnotacji
-    disp("Udział procentowy każdej klasy w sygnale (adnotacje):");
-    for i = 1:length(uniqueClasses)
-        fprintf("Klasa %d: %.2f%%\n", uniqueClasses(i), annotationDistribution(i));
-    end
-
-    % Podział sygnału na fragmenty (np. 10-sekundowe segmenty)
-    segmentLength = 10 * Fs; % 10 sekund w próbkach
-    numSegments = floor(length(sig) / segmentLength);
-    
-    classifications = zeros(numSegments, 1); % Klasyfikacje segmentów
-
-    % Ekstrakcja cech i klasyfikacja całego sygnału
+    % Przewidywanie jakości dla każdego segmentu
+    predictedClasses = [];
     for i = 1:numSegments
-        % Wyciąganie segmentu
         segmentStart = (i - 1) * segmentLength + 1;
         segmentEnd = i * segmentLength;
-        segment = sig(segmentStart:segmentEnd);
-
+        segmentData = sig(segmentStart:segmentEnd);
+        
         % Ekstrakcja cech z segmentu
-        features = extract(segment);
-
-        % Sprawdzanie wartości cech przed normalizacją
-        if any(isnan(features(:))) || any(isinf(features(:)))
-            error('Cechy zawierają wartości NaN lub Inf. Sprawdź dane.');
-        end
-
-        % Standaryzacja cech
-        features = standardize(features);
-
-        % Upewniamy się, że dane wejściowe do predict są w odpowiednim formacie (macierz)
-        features = features(:)';  % Zamiana na 1xN (jeśli było wektorem)
-
-        % Klasyfikacja segmentu
-        try
-            classifications(i) = predict(decisionTreeModel, features);
-        catch
-            error("Nie udało się sklasyfikować segmentu %d. Sprawdź format danych.", i);
-        end
+        features = extract_features(segmentData, Fs);
+        
+        % Klasyfikacja
+        % Zmieniamy transpozycję, aby upewnić się, że dane mają odpowiedni kształt
+        predictedClass = predict(randomForestModel, features);  % bez transponowania
+        predictedClasses = [predictedClasses; str2double(predictedClass)];  % Zamiana na liczby
+    end
+    
+    % Liczenie procentów klasyfikacji
+    classCounts = histcounts(predictedClasses, 'BinMethod', 'integers', 'BinLimits', [1, 3]);
+    totalCount = sum(classCounts);
+    fprintf('Procenty klas:\n');
+    for i = 1:3
+        fprintf('Klasa %d: %.2f%%\n', i, (classCounts(i) / totalCount) * 100);
     end
 
-    % Obliczanie procentowego podziału sygnału na klasy wg modelu
-    predictedDistribution = histcounts(classifications, [uniqueClasses, max(uniqueClasses)+1]) / length(classifications) * 100;
-
-    % Wyświetlanie wyników z modelu
-    disp("Udział procentowy każdej klasy w sygnale (model):");
-    for i = 1:length(uniqueClasses)
-        fprintf("Klasa %d: %.2f%%\n", uniqueClasses(i), predictedDistribution(i));
+    % Zliczanie procentów według annotatorów
+    annotatorCounts = zeros(4, 3);  % 4 annotatorów, 3 klasy
+    for i = 1:4  % Dla każdego annotatora
+        for j = 1:3  % Dla każdej klasy
+            annotatorCounts(i, j) = sum(ann(i, :) == j);
+        end
+    end
+    fprintf('\nProcenty według annotatorów:\n');
+    for i = 1:4
+        fprintf('Annotator %d:\n', i);
+        for j = 1:3
+            fprintf('  Klasa %d: %.2f%%\n', j, (annotatorCounts(i, j) / sum(annotatorCounts(i, :))) * 100);
+        end
     end
 end

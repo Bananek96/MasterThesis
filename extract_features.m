@@ -1,39 +1,26 @@
 function features = extract_features(sig, Fs)
-    % Funkcja do ekstrakcji cech z sygnału
-    disp("Rozpoczynanie ekstrakcji cech...");
-    windowSize = Fs * 5; % 5-sekundowe okno
-    overlap = Fs * 2.5; % Nakładanie okien co 2.5 sekundy
-    numWindows = floor((length(sig) - windowSize) / (windowSize - overlap)) + 1;
-
-    features = [];
-    for i = 1:numWindows
-        startIdx = (i-1) * (windowSize - overlap) + 1;
-        endIdx = startIdx + windowSize - 1;
-        if endIdx > length(sig)
-            break;
-        end
-        segment = sig(startIdx:endIdx);
-
-        % Transformacja falkowa
-        [c, ~] = wavedec(segment, 4, 'db4');
-
-        % Ekstrakcja cech statystycznych
-        stats.mean = mean(c);
-        stats.std = std(c);
-        stats.skewness = skewness(c);
-        stats.kurtosis = kurtosis(c);
-        stats.energy = sum(c.^2);
-
-        % Dodatkowe cechy, aby dopasować się do modelu
-        stats.median = median(c);
-        stats.max = max(c);
-        stats.min = min(c);
-        stats.range = range(c);
-
-        % Przekształcenie do wektora (łącznie 9 cech)
-        featureVector = [stats.mean, stats.std, stats.skewness, stats.kurtosis, ...
-                         stats.energy, stats.median, stats.max, stats.min, stats.range];
-        features = [features; featureVector]; % Dodanie cech do macierzy
-    end
-    disp("Ekstrakcja cech zakończona.");
+    % Funkcja ekstrakcji cech z surowego sygnału
+    % sig - dane sygnałowe (np. EKG)
+    % Fs - częstotliwość próbkowania sygnału
+    
+    % 1. Cechy statystyczne
+    mean_val = mean(sig);  % Średnia
+    std_val = std(sig);    % Odchylenie standardowe
+    max_val = max(sig);    % Maksymalna wartość
+    min_val = min(sig);    % Minimalna wartość
+    
+    % 2. Cechy częstotliwościowe (FFT)
+    N = length(sig);       % Długość sygnału
+    f = (0:N-1)*(Fs/N);    % Wektor częstotliwości
+    Y = fft(sig);          % Transformata Fouriera
+    mag = abs(Y);          % Amplituda
+    mag = mag(1:floor(N/2));  % Tylko dla dodatnich częstotliwości
+    f = f(1:floor(N/2));   % Częstotliwości dla dodatnich wartości
+    
+    % 3. Cechy z analizy FFT - np. średnia amplituda w paśmie
+    mean_mag = mean(mag);  % Średnia amplituda
+    peak_freq = f(find(mag == max(mag))); % Częstotliwość o największej amplitudzie
+    
+    % Połączenie cech do wektora
+    features = [mean_val, std_val, max_val, min_val, mean_mag, peak_freq];
 end

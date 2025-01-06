@@ -1,4 +1,4 @@
-function decision_tree(InputFile, ModelPath, MinTrainingTime, retrain)
+function random_forest(InputFile, ModelPath, MinTrainingTime, retrain)
     % Wczytanie przetworzonych danych
     load(InputFile, 'waveletData');
     
@@ -10,15 +10,15 @@ function decision_tree(InputFile, ModelPath, MinTrainingTime, retrain)
             for qualityClass = 1:3
                 data = waveletData(i).annotatorClassData{annotator, qualityClass};
                 if ~isempty(data)
-                    % Przetwarzanie fragmentów na cechy (w tym spektrogramy)
-                    features = extract(data, 500); % Przekazanie Fs jako 500 (przykład)
+                    % Przygotowanie fragmentów sygnału o długości 2 minut
+                    segmentLength = 2 * 60 * 1000;  % 2 minuty przy Fs = 1000 Hz
+                    numSegments = floor(length(data) / segmentLength);
                     
-                    % Upewnienie się, że features jest wektorem wierszowym
-                    if size(features, 1) == 1
-                        X = [X; features]; % Dodaj cechy do macierzy wejściowej
-                        Y = [Y; repmat(qualityClass, size(features, 1), 1)]; % Dodaj odpowiadające klasy
-                    else
-                        disp('Feature vector is not a row vector.');
+                    for seg = 1:numSegments
+                        segment = data((seg-1)*segmentLength + 1 : seg*segmentLength);
+                        features = extract_features(segment, 1000);  % Oczekujemy, że 'features' to wiersz
+                        X = [X; features];  % Łączenie cech wiersz po wierszu
+                        Y = [Y; repmat(qualityClass, size(features, 1), 1)];
                     end
                 end
             end
@@ -31,11 +31,11 @@ function decision_tree(InputFile, ModelPath, MinTrainingTime, retrain)
     
     % Sprawdzanie, czy istnieje model do dotrenowywania
     if retrain && isfile(ModelPath)
-        load(ModelPath, 'decisionTreeModel', 'totalTrainingTime');
+        load(ModelPath, 'randomForestModel', 'totalTrainingTime');
         disp("Dotrenowywanie istniejącego modelu...");
         initialTrainingTime = totalTrainingTime; % Początkowy czas treningu
     else
-        decisionTreeModel = [];
+        randomForestModel = [];
         initialTrainingTime = 0;
         disp("Trenowanie nowego modelu...");
     end
@@ -58,15 +58,15 @@ function decision_tree(InputFile, ModelPath, MinTrainingTime, retrain)
             return;
         end
         
-        % Trenowanie modelu z określoną głębokością
+        % Trenowanie modelu lasu losowego
         try
-            if isempty(decisionTreeModel)
-                % Trenowanie nowego modelu z domyślnymi parametrami (bez MaxDepth)
-                decisionTreeModel = fitctree(X, Y); % Trenowanie modelu bez ograniczenia głębokości
+            if isempty(randomForestModel)
+                % Trenowanie nowego modelu lasu losowego
+                randomForestModel = TreeBagger(100, X, Y, 'OOBPrediction', 'on'); % 100 drzew w lesie
             else
                 % Dotrenowywanie istniejącego modelu
-                decisionTreeModel = compact(decisionTreeModel); % Kompaktowanie modelu
-                decisionTreeModel = fitctree(X, Y); % Ponowne trenowanie
+                randomForestModel = compact(randomForestModel); % Kompaktowanie modelu
+                randomForestModel = TreeBagger(100, X, Y, 'OOBPrediction', 'on'); % Ponowne trenowanie
             end
         catch ME
             delete(progressBar); % Usuwanie paska postępu w przypadku błędu
@@ -87,7 +87,7 @@ function decision_tree(InputFile, ModelPath, MinTrainingTime, retrain)
     
     % Zapis modelu
     totalTrainingTime = initialTrainingTime + trainingTime; % Całkowity czas treningu
-    save(ModelPath, 'decisionTreeModel', 'totalTrainingTime'); % Zapisz model oraz całkowity czas treningu
+    save(ModelPath, 'randomForestModel', 'totalTrainingTime'); % Zapisz model oraz całkowity czas treningu
     
     % Wyświetlanie komunikatów
     disp(['Całkowity czas treningu (w tym dotrenowywanie): ', num2str(totalTrainingTime, '%.2f'), ' minut']);

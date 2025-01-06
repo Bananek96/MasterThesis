@@ -31,15 +31,17 @@ function waveletData = data_selection(FolderPath, HowManyData, OutputFile)
         ann = ann_reader(AnnotationFile, anntr, fromSample, toSample);
         
         % Przygotowanie danych dla każdej klasy
-        dataPerClass = cell(1, 3);
-        for qualityClass = 1:3
-            qualityIndices = find(any(ann == qualityClass, 1));
-            dataPerClass{qualityClass} = sig(qualityIndices);
+        dataPerAnnotatorClass = cell(4, 3); % 4 annotators and 3 classes
+        for annotator = 1:4
+            for qualityClass = 1:3
+                qualityIndices = find(ann(annotator, :) == qualityClass);
+                dataPerAnnotatorClass{annotator, qualityClass} = sig(qualityIndices);
+            end
         end
         
         % Zapisanie do struktury
         waveletData(i).folderName = currentFolder;
-        waveletData(i).classData = dataPerClass;
+        waveletData(i).annotatorClassData = dataPerAnnotatorClass;
     end
     
     % Zapis do pliku MAT
