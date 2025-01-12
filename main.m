@@ -2,10 +2,10 @@ clear; close all; clc;
 
 % Główne ustawienia
 FolderPath = './database';
-HowManyData = 1; % Liczba folderów do przetwarzania (0 = wszystkie)
+HowManyData = 14; % Liczba folderów do przetwarzania (0 = wszystkie)
 ModelPath = './rf_model.mat'; % Ścieżka do zapisu/wczytania modelu lasów losowych
 ProcessedDataPath = './data.mat'; % Ścieżka do pliku z przetworzonymi danymi
-MinTrainingTime = 1; % Minimalny czas treningu w minutach
+MinTrainingTime = 10; % Minimalny czas treningu w minutach
 
 % Sprawdzanie, czy istnieje plik z przetworzonymi danymi
 if isfile(ProcessedDataPath)
@@ -44,9 +44,13 @@ end
 disp("Uruchamianie oceny nowego sygnału...");
 
 % Ścieżki do nowego sygnału i jego adnotacji
-NewDataFile = './database/100001/100001_ECG';
-AnnotationFile = './database/100001/100001_ANN';
+NewDataFiles = {'./database/123001/123001_ECG', './database/124001/124001_ECG', './database/125001/125001_ECG', './database/126001/126001_ECG'};
+AnnotationFiles = {'./database/123001/123001_ANN', './database/124001/124001_ANN','./database/125001/125001_ANN','./database/126001/126001_ANN'};
 
 % Uruchomienie oceny sygnału
-evaluate_signal(NewDataFile, AnnotationFile, ModelPath);
+% Pętla do analizy kolejnych sygnałów
+for i = 1:length(NewDataFiles)
+    disp(['Przetwarzanie sygnału ', num2str(i), ' z ', num2str(length(NewDataFiles))]);
+    evaluate_signal(NewDataFiles{i}, AnnotationFiles{i}, ModelPath);
+end
 disp("Ocena sygnału zakończona.");

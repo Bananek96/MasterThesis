@@ -1,6 +1,6 @@
 function evaluate_signal(NewDataFile, AnnotationFile, ModelPath)
     % Wyciąganie nazwy folderu sygnału (np. 100001) z pełnej ścieżki
-    [folderPath, signalName, ~] = fileparts(NewDataFile);
+    [~, signalName, ~] = fileparts(NewDataFile);
     disp(['Analizowanie sygnału: ', signalName]);
 
     % Ustalanie częstotliwości próbkowania (1000 Hz)
@@ -33,31 +33,61 @@ function evaluate_signal(NewDataFile, AnnotationFile, ModelPath)
         features = extract_features(segmentData, Fs);
         
         % Klasyfikacja
-        % Zmieniamy transpozycję, aby upewnić się, że dane mają odpowiedni kształt
         predictedClass = predict(randomForestModel, features);  % bez transponowania
         predictedClasses = [predictedClasses; str2double(predictedClass)];  % Zamiana na liczby
     end
     
     % Liczenie procentów klasyfikacji
-    classCounts = histcounts(predictedClasses, 'BinMethod', 'integers', 'BinLimits', [1, 3]);
-    totalCount = sum(classCounts);
+    if ~isempty(predictedClasses)
+        classCounts = histcounts(predictedClasses, 'BinMethod', 'integers', 'BinLimits', [1, 3]);
+        totalCount = sum(classCounts);
+        classPercentages = (classCounts / totalCount) * 100;
+    else
+        classPercentages = [0, 0, 0];
+    end
+
     fprintf('Procenty klas:\n');
     for i = 1:3
-        fprintf('Klasa %d: %.2f%%\n', i, (classCounts(i) / totalCount) * 100);
+        fprintf('Klasa %d: %.2f%%\n', i, classPercentages(i));
     end
 
     % Zliczanie procentów według annotatorów
     annotatorCounts = zeros(4, 3);  % 4 annotatorów, 3 klasy
+    annotatorPercentages = zeros(4, 3);
     for i = 1:4  % Dla każdego annotatora
         for j = 1:3  % Dla każdej klasy
             annotatorCounts(i, j) = sum(ann(i, :) == j);
+        end
+        if sum(annotatorCounts(i, :)) > 0
+            annotatorPercentages(i, :) = (annotatorCounts(i, :) / sum(annotatorCounts(i, :))) * 100;
+        else
+            annotatorPercentages(i, :) = [0, 0, 0];
         end
     end
     fprintf('\nProcenty według annotatorów:\n');
     for i = 1:4
         fprintf('Annotator %d:\n', i);
         for j = 1:3
-            fprintf('  Klasa %d: %.2f%%\n', j, (annotatorCounts(i, j) / sum(annotatorCounts(i, :))) * 100);
+            fprintf('  Klasa %d: %.2f%%\n', j, annotatorPercentages(i, j));
         end
     end
+
+    % Zapisywanie wyników do pliku CSV
+    csvFilename = strcat(signalName, '_results.csv');
+    fileID = fopen(csvFilename, 'w');
+    fprintf(fileID, 'Klasyfikacja modelu\n');
+    fprintf(fileID, 'Klasa,Procent\n');
+    for i = 1:3
+        fprintf(fileID, '%d,%.2f\n', i, classPercentages(i));
+    end
+
+    fprintf(fileID, '\nKlasyfikacja annotatorów\n');
+    for i = 1:4
+        fprintf(fileID, 'Annotator %d\n', i);
+        fprintf(fileID, 'Klasa,Procent\n');
+        for j = 1:3
+            fprintf(fileID, '%d,%.2f\n', j, annotatorPercentages(i, j));
+        end
+    end
+    fclose(fileID);
 end
