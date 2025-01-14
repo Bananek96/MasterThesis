@@ -41,16 +41,32 @@ else
     random_forest(ProcessedDataPath, ModelPath, MinTrainingTime, false); % Trenowanie modelu od nowa
 end
 
-disp("Uruchamianie oceny nowego sygnału...");
+% Zapytanie o ocenę sygnału
+disp("Czy chcesz przeprowadzić ocenę nowego sygnału? (tak/nie)");
+userInput = input('', 's');
+if strcmpi(userInput, 'tak')
+    disp("Uruchamianie oceny nowego sygnału...");
+    
+    % Ścieżki do nowego sygnału i jego adnotacji
+    NewDataFiles = {'./database/123001/123001_ECG', './database/124001/124001_ECG', './database/125001/125001_ECG', './database/126001/126001_ECG'};
+    AnnotationFiles = {'./database/123001/123001_ANN', './database/124001/124001_ANN','./database/125001/125001_ANN','./database/126001/126001_ANN'};
 
-% Ścieżki do nowego sygnału i jego adnotacji
-NewDataFiles = {'./database/123001/123001_ECG', './database/124001/124001_ECG', './database/125001/125001_ECG', './database/126001/126001_ECG'};
-AnnotationFiles = {'./database/123001/123001_ANN', './database/124001/124001_ANN','./database/125001/125001_ANN','./database/126001/126001_ANN'};
-
-% Uruchomienie oceny sygnału
-% Pętla do analizy kolejnych sygnałów
-for i = 1:length(NewDataFiles)
-    disp(['Przetwarzanie sygnału ', num2str(i), ' z ', num2str(length(NewDataFiles))]);
-    evaluate_signal(NewDataFiles{i}, AnnotationFiles{i}, ModelPath);
+    % Uruchomienie oceny sygnału
+    % Pętla do analizy kolejnych sygnałów
+    for i = 1:length(NewDataFiles)
+        disp(['Przetwarzanie sygnału ', num2str(i), ' z ', num2str(length(NewDataFiles))]);
+        evaluate_signal(NewDataFiles{i}, AnnotationFiles{i}, ModelPath);
+    end
+    disp("Ocena sygnału zakończona.");
 end
-disp("Ocena sygnału zakończona.");
+
+ProcessedDataPath = './data_2.mat';
+
+% Zapytanie o ocenę modelu
+disp("Czy chcesz przeprowadzić ocenę modelu? (tak/nie)");
+userInput = input('', 's');
+if strcmpi(userInput, 'tak')
+    disp("Ocena modelu...");
+    evaluate_model(ModelPath, ProcessedDataPath);
+    disp("Ocena modelu zakończona.");
+end

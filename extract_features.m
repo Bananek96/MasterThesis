@@ -1,8 +1,5 @@
 function features = extract_features(sig, Fs)
-    % Funkcja ekstrakcji cech z surowego sygnału
-    % sig - dane sygnałowe (np. EKG)
-    % Fs - częstotliwość próbkowania sygnału
-    
+  
     % 1. Cechy statystyczne
     mean_val = mean(sig);  % Średnia
     std_val = std(sig);    % Odchylenie standardowe

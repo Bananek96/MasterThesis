@@ -1,0 +1,16 @@
+Macierz pomyłek:
+Predykcja 1, Predykcja 2, Predykcja 3
+250, 10, 0
+13, 87, 3
+0, 1, 18
+
+Dokładność: 92.93%
+Klasa 1:
+    Czułość: 96.15%
+    Specyficzność: 89.34%
+Klasa 2:
+    Czułość: 84.47%
+    Specyficzność: 96.06%
+Klasa 3:
+    Czułość: 94.74%
+    Specyficzność: 99.17%
