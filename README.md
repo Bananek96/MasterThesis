@@ -1,4 +1,5 @@
 # ECG signal quality assessment using artificial intelligence models
+GITHUB: https://github.com/Bananek96/MasterThesis
 ## DataBase
 Nemcova, A., Smisek, R., Opravilová, K., Vitek, M., Smital, L., & Maršánová, L. (2020). Brno University of Technology ECG Quality Database (BUT QDB) (version 1.0.0). PhysioNet. https://doi.org/10.13026/kah4-0w24.
 ## ToolBox Instalation
