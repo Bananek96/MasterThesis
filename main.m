@@ -2,10 +2,10 @@ clear; close all; clc;
 
 % Główne ustawienia
 FolderPath = './database';
-HowManyData = 14; % Liczba folderów do przetwarzania (0 = wszystkie)
+HowManyData = 1; % Liczba folderów do przetwarzania (0 = wszystkie, ustawic 14 jako maksymalna wartosc)
 ModelPath = './rf_model.mat'; % Ścieżka do zapisu/wczytania modelu lasów losowych
 ProcessedDataPath = './data.mat'; % Ścieżka do pliku z przetworzonymi danymi
-MinTrainingTime = 10; % Minimalny czas treningu w minutach
+MinTrainingTime = 1; % Minimalny czas treningu w minutach
 
 % Sprawdzanie, czy istnieje plik z przetworzonymi danymi
 if isfile(ProcessedDataPath)
@@ -60,7 +60,7 @@ if strcmpi(userInput, 'tak')
     disp("Ocena sygnału zakończona.");
 end
 
-ProcessedDataPath = './data_2.mat';
+ProcessedDataPath = './data_2.mat'; % Gotowy wyselekcjonowany zbior sygnałow 4 ostatnich do oceny modelu
 
 % Zapytanie o ocenę modelu
 disp("Czy chcesz przeprowadzić ocenę modelu? (tak/nie)");

@@ -1,0 +1,10 @@
+Repozytorium projektu: https://github.com/Bananek96/MasterThesis
+W readme znajduje się link do bazy danych oraz link instrukcja do poprania ToolBoxa.
+Oprocz toolboxa znajdującego się w Readme należy sciagnac Statistics and Machine Learning Toolbox w oprogramowaniu Matlab.
+
+data.mat - sygnały na podstawie których jest uczony model - powstanie automatycznie, w pliku main ma być wartość 14, aby powstalo na 14 sygnałów. Nie trzeba tego robic dla 14 sygnałów tylko dla 1 i pominąć dotrenowywanie modelu.
+data_2.mat - sygnały na podstawie których jest oceniany model
+rf_model - model lasów losowych
+main.m - główny plik programu
+
+Pliki w .zip maja znajdować się w jednym folderze, a pliki bazy danych maja się znajdować w dodatkowym podfolderze database, w którym mają być kolejno pliki sygnałow w podfolderach o nazwie sygnału.
